@@ -24,11 +24,13 @@ export default function ChatMessage({ message }) {
 
   return (
     <div className={`w-full flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className={`max-w-[85%] sm:max-w-[70%] ${isUser ? "items-end" : "items-start"} flex flex-col gap-1`}>
+      <div className={`max-w-[85%] sm:max-w-[70%] ${isUser ? "items-end" : "items-start"} flex flex-col gap-2`}>
         <div
           className={[
-            "rounded-2xl px-4 py-3 whitespace-pre-wrap break-words",
-            isUser ? "bg-emerald-500 text-white rounded-br-md" : "bg-slate-700 text-slate-100 rounded-bl-md",
+            "rounded-2xl px-4 py-3 whitespace-pre-wrap break-words border",
+            isUser
+              ? "bg-gradient-to-r from-emerald-500/90 to-green-500/80 text-white border-emerald-200 shadow"
+              : "bg-white text-slate-700 border-violet-100 shadow-sm",
           ].join(" ")}
         >
           {message.content}
@@ -36,7 +38,7 @@ export default function ChatMessage({ message }) {
         <div className="flex items-center gap-2 text-xs text-slate-400">
           <span>{formatTime(message.timestamp)}</span>
           {!isUser && (
-            <button onClick={copyMessage} className="hover:text-slate-200 transition-colors" type="button">
+            <button onClick={copyMessage} className="hover:text-violet-600 transition-colors" type="button">
               {copied ? "Copied!" : "Copy"}
             </button>
           )}

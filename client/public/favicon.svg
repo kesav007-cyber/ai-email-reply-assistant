@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle with gradient -->
+  <rect width="192" height="192" fill="url(#purpleGradient)" rx="40"/>
+  
+  <!-- Pencil icon -->
+  <g transform="translate(48, 36)">
+    <!-- Pencil body -->
+    <path d="M 48 8 L 96 56 L 56 96 L 8 48 Z" fill="white" opacity="0.9"/>
+    <!-- Pencil tip -->
+    <path d="M 56 96 L 48 104 L 40 96 Z" fill="white" opacity="0.8"/>
+    <!-- Pencil line/highlight -->
+    <line x1="48" y1="8" x2="56" y2="16" stroke="white" stroke-width="3" opacity="0.7"/>
+  </g>
+</svg>

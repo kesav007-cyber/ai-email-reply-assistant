@@ -11,11 +11,12 @@ const lengthOptions = ["short", "medium", "long"];
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [tone, setTone] = useState("professional");
-  const [intent, setIntent] = useState("reply");
-  const [length, setLength] = useState("medium");
+  const [tone, setTone] = useState("");
+  const [intent, setIntent] = useState("");
+  const [length, setLength] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
@@ -55,9 +56,9 @@ export default function App() {
       const response = await axios.post(API_URL, {
         message: trimmed,
         history: [...serializedHistory, { role: "user", content: trimmed }],
-        tone,
-        intent,
-        length,
+        tone: tone || "professional",
+        intent: intent || "reply",
+        length: length || "medium",
       });
 
       setMessages((prev) => [
@@ -109,118 +110,149 @@ export default function App() {
   };
 
   return (
-    <div className="h-full bg-slate-900 text-slate-100 flex">
-      <aside className="w-64 hidden md:flex flex-col border-r border-slate-700 p-4 gap-3 bg-slate-950">
-        <h1 className="text-xl font-semibold">AI Email Assistant</h1>
-        <button
-          type="button"
-          onClick={clearChat}
-          className="rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors px-3 py-2 text-left"
-        >
-          New Chat
-        </button>
-        <button
-          type="button"
-          onClick={downloadChat}
-          className="rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors px-3 py-2 text-left"
-        >
-          Download Chat
-        </button>
-      </aside>
-
-      <main className="flex-1 flex flex-col h-full">
-        <div className="md:hidden border-b border-slate-700 px-4 py-3 flex items-center justify-between bg-slate-950">
-          <h1 className="font-semibold">AI Email Assistant</h1>
-          <div className="flex gap-2">
-            <button type="button" onClick={clearChat} className="text-sm rounded-md px-2 py-1 bg-slate-800">
-              New Chat
-            </button>
-            <button type="button" onClick={downloadChat} className="text-sm rounded-md px-2 py-1 bg-slate-800">
-              Download
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-violet-50 to-white text-slate-800 flex">
+      <aside
+        className={`fixed inset-y-0 left-0 z-30 w-72 transform bg-white/95 backdrop-blur-lg shadow-xl border-r border-violet-100 p-5 transition-transform duration-300 flex flex-col ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center gap-3 pb-4 border-b border-violet-100">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-lg font-semibold">
+            ✏️
           </div>
+          <h1 className="text-lg font-bold text-violet-700">AI Email Assistant</h1>
         </div>
 
-        <section ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-5">
+        <div className="flex flex-col gap-2 flex-1">
+          <button
+            type="button"
+            onClick={clearChat}
+            className="w-full rounded-xl bg-violet-100 py-3 px-4 text-center text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-200 active:scale-95"
+          >
+            + New Chat
+          </button>
+
+          <button
+            type="button"
+            onClick={downloadChat}
+            className="w-full rounded-xl bg-blue-100 py-3 px-4 text-center text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-200 active:scale-95"
+          >
+            ⬇ Download Chat
+          </button>
+        </div>
+
+        <footer className="mt-auto pt-4 border-t border-violet-100">
+          <p className="text-xs text-slate-400">Contextual • privacy aware</p>
+        </footer>
+      </aside>
+
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-slate-900/40"
+          onClick={() => setSidebarOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Close sidebar"
+          onKeyDown={(e) => { if (e.key === 'Escape') setSidebarOpen(false); }}
+        />
+      )}
+
+      <main className="flex-1 flex flex-col">
+        <header className="w-full border-b border-violet-200 bg-white/80 backdrop-blur p-4 lg:p-6 flex items-center gap-3">
+          <button
+            type="button"
+            className={`flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg border border-violet-200 bg-white text-xl font-bold text-violet-700 shadow-sm hover:bg-violet-50 transition-all ${
+              sidebarOpen ? "hidden" : ""
+            }`}
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            ☰
+          </button>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-800">✨ Hi! I'm your AI email assistant.</h2>
+            <p className="text-sm text-slate-500 mt-1">Use prompts like: make it shorter, more formal, friendlier, or add bullet points.</p>
+          </div>
+        </header>
+
+        <section ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4">
           {messages.length === 0 && !loading ? (
-            <div className="text-center text-slate-400 mt-16">
-              <p className="text-lg">Start by pasting an email context or request.</p>
-              <p className="text-sm mt-2">Ask for refinements like: make it shorter, more formal, or friendlier.</p>
+            <div className="rounded-2xl border border-dashed border-violet-200 bg-white/80 px-6 py-10 text-center">
+              <p className="text-lg font-medium text-slate-600">Start by pasting an email context or request.</p>
+              <p className="text-sm text-slate-400 mt-2">Then choose options and hit Send.</p>
             </div>
           ) : (
             messages.map((message, index) => <ChatMessage key={`${message.timestamp}-${index}`} message={message} />)
           )}
 
           {loading && (
-            <div className="w-full flex justify-start">
-              <div className="bg-slate-700 rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-3">
-                <span className="text-slate-200 text-sm">AI is typing</span>
-                <span className="flex gap-1">
-                  <span className="typing-dot h-1.5 w-1.5 rounded-full bg-slate-200" />
-                  <span className="typing-dot h-1.5 w-1.5 rounded-full bg-slate-200" />
-                  <span className="typing-dot h-1.5 w-1.5 rounded-full bg-slate-200" />
-                </span>
-              </div>
+            <div className="inline-flex items-center gap-3 bg-white shadow rounded-2xl px-4 py-3">
+              <span className="h-2 w-2 rounded-full animate-pulse bg-violet-500" />
+              <span className="text-sm text-slate-500">AI is typing…</span>
             </div>
           )}
         </section>
 
-        <section className="border-t border-slate-700 px-4 sm:px-8 py-4 bg-slate-900 sticky bottom-0">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
+        <section className="border-t border-violet-100 bg-white/90 backdrop-blur px-4 lg:px-6 py-4 sticky bottom-0 shadow-[0_-8px_24px_-14px_rgba(99,102,241,0.25)]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+              className="bg-white border border-violet-200 rounded-xl px-3 py-2 text-sm text-slate-600 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             >
+              <option value="" disabled>Tone</option>
               {toneOptions.map((option) => (
                 <option key={option} value={option}>
-                  Tone: {option}
+                  {option}
                 </option>
               ))}
             </select>
             <select
               value={intent}
               onChange={(e) => setIntent(e.target.value)}
-              className="bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+              className="bg-white border border-violet-200 rounded-xl px-3 py-2 text-sm text-slate-600 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             >
+              <option value="" disabled>Intent</option>
               {intentOptions.map((option) => (
                 <option key={option} value={option}>
-                  Intent: {option}
+                  {option}
                 </option>
               ))}
             </select>
             <select
               value={length}
               onChange={(e) => setLength(e.target.value)}
-              className="bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+              className="bg-white border border-violet-200 rounded-xl px-3 py-2 text-sm text-slate-600 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             >
+              <option value="" disabled>Length</option>
               {lengthOptions.map((option) => (
                 <option key={option} value={option}>
-                  Length: {option}
+                  {option}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-end gap-2">
+          <div className="flex items-stretch gap-3">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your email request..."
               rows={2}
-              className="flex-1 resize-none bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500"
+              className="flex-1 resize-none bg-violet-50 border border-violet-200 rounded-2xl px-4 py-3 text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             />
             <button
               type="button"
               onClick={handleSend}
               disabled={loading || !input.trim()}
-              className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-400 text-slate-950 font-medium rounded-xl px-5 py-3 transition-colors"
+              className="rounded-2xl px-5 font-semibold transition-colors text-white bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 disabled:from-slate-300 disabled:to-slate-300 disabled:text-slate-500 flex items-center justify-center"
             >
               Send
             </button>
           </div>
-          {error && <p className="text-rose-400 text-sm mt-2">{error}</p>}
+
+          {error && <p className="text-rose-500 text-sm mt-2">{error}</p>}
         </section>
       </main>
     </div>
